@@ -111,9 +111,10 @@ function App() {
     });
 
     // Label is found here
-    await easyPostAPI("Buy Shipment", {
+    let shipmentPurchase = await easyPostAPI("Buy Shipment", {
       id: shipmentObj.id,
     });
+    setPostageLabel(shipmentPurchase.postage_label.label_url);
   };
 
   useEffect(() => {}, []);
@@ -260,6 +261,15 @@ function App() {
       <Button variant="contained" onClick={onButtonClick}>
         Generate Label
       </Button>
+      {console.log("postage label", postageLabel)}
+      <div>
+        <h2 style={{ textDecoration: "underline", margin: "3rem" }}>
+          Generated Labels
+        </h2>
+        <a target="_blank" href={postageLabel}>
+          Postage Label
+        </a>
+      </div>
     </div>
   );
 }

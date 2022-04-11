@@ -9,11 +9,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.post("/", (req, res) => {
-  const api = new Easypost("");
+  const api = new Easypost(
+    "EZTKfc531e859f1045758266f73a978f4ef7VZBhjJqsai4JQ4lZ29FI1Q"
+  );
   let response = {};
   const endpoint = req.body.endpoint;
-
-  console.log("id found", req.body);
 
   if (endpoint === "Create Shipment") {
     response = new api.Shipment(req.body.requestData);
@@ -22,7 +22,7 @@ app.post("/", (req, res) => {
 
   if (endpoint === "Buy Shipment") {
     api.Shipment.retrieve(req.body.requestData.id).then((s) => {
-      s.buy(s.lowestRate(), 249.99).then((s) => res.json(s));
+      s.buy(s.lowestRate(), 0).then((s) => res.json(s));
     });
   }
 });
