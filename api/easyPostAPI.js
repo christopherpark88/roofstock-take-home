@@ -15,6 +15,14 @@ app.post("/", (req, res) => {
   let response = {};
   const endpoint = req.body.endpoint;
 
+  if (endpoint === "Create Address") {
+    const address = new api.Address(req.body.requestData);
+    address.save().then((s) => res.json(s));
+  }
+  if (endpoint === "Create Parcel") {
+    const parcel = new api.Parcel(req.body.requestData);
+    parcel.save().then((s) => res.json(s));
+  }
   if (endpoint === "Create Shipment") {
     response = new api.Shipment(req.body.requestData);
     response.save().then((s) => res.json(s));
