@@ -113,10 +113,38 @@ function App() {
         ...senderAddress,
         [key]: e.target.value,
       });
+      setErrorFields({
+        ...errorFields,
+        [key]: {
+          sender: false,
+          receiver: errorFields[key].receiver,
+        },
+      });
+      setHelperTexts({
+        ...helperTexts,
+        [key]: {
+          sender: "",
+          receiver: helperTexts[key].receiver,
+        },
+      });
     } else {
       setReceiverAddress({
         ...receiverAddress,
         [key]: e.target.value,
+      });
+      setErrorFields({
+        ...errorFields,
+        [key]: {
+          sender: errorFields[key].sender,
+          receiver: false,
+        },
+      });
+      setHelperTexts({
+        ...helperTexts,
+        [key]: {
+          sender: helperTexts[key].receiver,
+          receiver: "",
+        },
       });
     }
   };
@@ -391,7 +419,6 @@ function App() {
       <Button variant="contained" onClick={onButtonClick}>
         Generate Label
       </Button>
-      {console.log("postage label", postageLabel)}
       <div>
         <h2 style={{ textDecoration: "underline", margin: "3rem" }}>
           Generated Label
