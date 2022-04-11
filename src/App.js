@@ -106,6 +106,8 @@ function App() {
     height: "",
     weight: "",
   });
+  const [blockGenerate, setBlockGenerate] = useState(true);
+  const [snackBarMsg, setSnackBarMsg] = useState("");
 
   const handleAddressChange = (key, isSender) => (e) => {
     if (isSender) {
@@ -157,7 +159,7 @@ function App() {
   };
 
   // Start process to create label upon button click
-  const onButtonClick = async () => {
+  const verifyAddress = async () => {
     // Create shipment
     /*     let shipmentObj = await easyPostAPI("Create Shipment", {
       from_address: senderAddress,
@@ -166,7 +168,9 @@ function App() {
     }); */
 
     let fromAddress = await easyPostAPI("Create Address", testSender);
+    setSenderAddress(fromAddress);
     let toAddress = await easyPostAPI("Create Address", testReceiver);
+    setReceiverAddress(toAddress);
 
     let senderVerify = fromAddress.verifications.delivery;
     let receiverVerify = toAddress.verifications.delivery;
@@ -193,6 +197,10 @@ function App() {
             },
           });
         });
+        setSnackBarMsg(
+          "Minor errors were found when verifying the address. Click Generate Label if you want to continue"
+        );
+        setBlockGenerate(false);
       }
       if (receiverVerify.errors.length > 0) {
         receiverVerify.errors.map((error) => {
@@ -214,17 +222,67 @@ function App() {
             });
           });
         });
+        setSnackBarMsg(
+          "Minor errors were found when verifying the address. Click Generate Label if you want to continue"
+        );
+        setBlockGenerate(false);
       }
     } else {
       if (!senderVerify.success) {
+        senderVerify.errors.map((error) => {
+          console.log("sender errors", error);
+          setErrorFields({
+            ...errorFields,
+            [error.field]: {
+              sender: true,
+              receiver: errorFields[error.field].receiver,
+            },
+          });
+          setHelperTexts({
+            ...helperTexts,
+            [error.field]: {
+              sender: error.message,
+              receiver: helperTexts[error.field].receiver,
+            },
+          });
+        });
+        setSnackBarMsg(
+          "Major errors found when verifyin address. Please check everything is entered correctly."
+        );
+        setBlockGenerate(true);
       }
       if (!receiverVerify.success) {
+        receiverVerify.errors.map((error) => {
+          receiverVerify.errors.map((error) => {
+            console.log("receiver errors", error);
+            setErrorFields({
+              ...errorFields,
+              [error.field]: {
+                sender: true,
+                receiver: errorFields[error.field].receiver,
+              },
+            });
+            setHelperTexts({
+              ...helperTexts,
+              [error.field]: {
+                sender: error.message,
+                receiver: helperTexts[error.field].receiver,
+              },
+            });
+          });
+        });
+        setSnackBarMsg(
+          "Major errors found when verifyin address. Please check everything is entered correctly."
+        );
+        setBlockGenerate(true);
       }
     }
+  };
 
+  const generateLabel = async () => {
     let shipmentObj = await easyPostAPI("Create Shipment", {
-      from_address: fromAddress,
-      to_address: toAddress,
+      from_address: senderAddress,
+      to_address: receiverAddress,
       parcel: testParcel,
     });
 
@@ -416,9 +474,25 @@ function App() {
           />
         </Grid>
       </Grid>
-      <Button variant="contained" onClick={onButtonClick}>
-        Generate Label
-      </Button>
+      <div>
+        <Button
+          style={{ margin: "1rem" }}
+          variant="contained"
+          color="secondary"
+          onClick={verifyAddress}
+        >
+          Verify Address
+        </Button>
+        <Button
+          disabled={blockGenerate}
+          style={{ margin: "1rem" }}
+          variant="contained"
+          onClick={generateLabel}
+        >
+          Generate Label
+        </Button>
+      </div>
+
       <div>
         <h2 style={{ textDecoration: "underline", margin: "3rem" }}>
           Generated Label
@@ -431,6 +505,10 @@ function App() {
           <div> No labels generated</div>
         )}
       </div>
+      <br />
+      <br />
+      <br />
+      <br />
     </div>
   );
 }
