@@ -17,23 +17,21 @@ const defaultAddressValues = {
   phone: "",
 };
 
-const testKey = "";
+const testKey = "EZTKfc531e859f1045758266f73a978f4ef7VZBhjJqsai4JQ4lZ29FI1Q:";
 
-const easyPostAPI = async (method, url, dataToSend) => {
-  console.log("datatosend", dataToSend);
+const easyPostAPI = async (endpoint, requestData) => {
   const settings = {
-    method,
+    method: "POST",
+    body: JSON.stringify({ endpoint, requestData }),
     headers: {
-      "Content-Type": "application/json",
-      Authorization: "Basic " + btoa(testKey),
+      "Content-type": "application/json; charset=UTF-8",
     },
-    body: JSON.stringify(dataToSend),
   };
 
   try {
-    const response = await fetch(url, settings);
+    const response = await fetch("http://localhost:9000/", settings);
     let responseData = await response.json();
-    console.log("responsecheck", responseData);
+    console.log("response check", responseData);
     return responseData;
   } catch (e) {
     console.log("error in updating response", e);
@@ -50,6 +48,7 @@ function App() {
   const [senderAddress, setSenderAddress] = useState(defaultAddressValues);
   const [receiverAddress, setReceiverAddress] = useState(defaultAddressValues);
   const [parcelDetails, setParcelDetails] = useState("");
+  const [postageLabel, setPostageLabel] = useState("");
 
   const handleAddressChange = (key, isSender) => (e) => {
     if (isSender) {
@@ -87,14 +86,13 @@ function App() {
     };
 
     let testReceiver = {
-      street1: "200 Alfred Drive",
-      street2: "",
-      city: "BROOKLYN",
-      state: "NY",
-      zip: "11212",
+      name: "Dr. Steve Brule",
+      street1: "179 N Harbor Dr",
+      city: "Redondo Beach",
+      state: "CA",
+      zip: "90277",
       country: "US",
-      company: "EasyPost",
-      phone: "418-281-1284",
+      phone: "4155559999",
     };
 
     let testParcel = {
@@ -104,53 +102,21 @@ function App() {
       weight: 65.9,
     };
 
-    let fromAddress = await easyPostAPI("POST", "/v2/addresses", testSender);
-    let toAddress = await easyPostAPI("POST", "v2/addresses", testReceiver);
-    let parcelAttributes = await easyPostAPI("POST", "v2/parcels", testParcel);
+    // Create shipment
 
-    let shipmentData = {
-      from_address: {
-        street1: "417 MONTGOMERY ST",
-        street2: "FLOOR 5",
-        city: "SAN FRANCISCO",
-        state: "CA",
-        zip: "94104",
-        country: "US",
-        company: "EasyPost",
-        phone: "415-123-4567",
-      },
-      to_address: {
-        name: "Dr. Steve Brule",
-        street1: "179 N Harbor Dr",
-        city: "Redondo Beach",
-        state: "CA",
-        zip: "90277",
-        country: "US",
-        phone: "4155559999",
-      },
-      parcel: {
-        length: 8,
-        width: 5,
-        height: 5,
-        weight: 5,
-      },
-    };
-    // Create Shipment
-    let shipmentResponse = await easyPostAPI(
-      "POST",
-      "v2/shipments",
-      shipmentData
-    );
+    let shipmentObj = await easyPostAPI("Create Shipment", {
+      from_address: testSender,
+      to_address: testReceiver,
+      parcel: testParcel,
+    });
 
-    /*     let fromAddress = await easyPostAPI("/v2/addresses", senderAddress);
-    let toAddress = await easyPostAPI("v2/addresses", receiverAddress);
-    let parcelAttributes = await easyPostAPI("v2/parcels", parcelDetails); */
-    //console.log("parcel_response", parcelAttributes);
+    // Label is found here
+    await easyPostAPI("Buy Shipment", {
+      id: shipmentObj.id,
+    });
   };
 
-  useEffect(() => {
-    //easyPostAPI("/v2/addresses", testKey, addressData);
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <div className="App">
@@ -210,7 +176,6 @@ function App() {
               label="Phone"
               onChange={handleAddressChange("phone", true)}
             />
-            Put optional customs info here
           </div>
         </Grid>
         <Grid item xs={4}>
@@ -263,7 +228,6 @@ function App() {
             label="Phone"
             onChange={handleAddressChange("phone", false)}
           />
-          Remember to put customs info here
         </Grid>
         <Grid item xs={4}>
           <strong>Package Attributes</strong>
@@ -292,7 +256,6 @@ function App() {
             onChange={handleParcelDetailChange("weight")}
           />
         </Grid>
-        {console.log("parceldetails", parcelDetails)}
       </Grid>
       <Button variant="contained" onClick={onButtonClick}>
         Generate Label
