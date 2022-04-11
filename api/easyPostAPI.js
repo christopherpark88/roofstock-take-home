@@ -9,9 +9,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.post("/", (req, res) => {
-  const api = new Easypost(
-    "EZTKfc531e859f1045758266f73a978f4ef7VZBhjJqsai4JQ4lZ29FI1Q"
-  );
+  const api = new Easypost("");
   let response = {};
   const endpoint = req.body.endpoint;
 

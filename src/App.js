@@ -5,6 +5,9 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import styled from "styled-components";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 
 const defaultAddressValues = {
   street1: "",
@@ -108,6 +111,32 @@ function App() {
   });
   const [blockGenerate, setBlockGenerate] = useState(true);
   const [snackBarMsg, setSnackBarMsg] = useState("");
+  const [openSnackbar, setOpenSnackBar] = useState(false);
+
+  const handleClick = () => {
+    setOpenSnackBar(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnackBar(false);
+  };
+
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   const handleAddressChange = (key, isSender) => (e) => {
     if (isSender) {
@@ -200,7 +229,9 @@ function App() {
         setSnackBarMsg(
           "Minor errors were found when verifying the address. Click Generate Label if you want to continue"
         );
+        setOpenSnackBar(true);
         setBlockGenerate(false);
+        return;
       }
       if (receiverVerify.errors.length > 0) {
         receiverVerify.errors.map((error) => {
@@ -225,8 +256,13 @@ function App() {
         setSnackBarMsg(
           "Minor errors were found when verifying the address. Click Generate Label if you want to continue"
         );
+        setOpenSnackBar(true);
         setBlockGenerate(false);
+        return;
       }
+      setSnackBarMsg("Verified Successfully! Click Generate Label to proceed.");
+      setOpenSnackBar(true);
+      setBlockGenerate(false);
     } else {
       if (!senderVerify.success) {
         senderVerify.errors.map((error) => {
@@ -249,6 +285,7 @@ function App() {
         setSnackBarMsg(
           "Major errors found when verifyin address. Please check everything is entered correctly."
         );
+        setOpenSnackBar(true);
         setBlockGenerate(true);
       }
       if (!receiverVerify.success) {
@@ -274,6 +311,7 @@ function App() {
         setSnackBarMsg(
           "Major errors found when verifyin address. Please check everything is entered correctly."
         );
+        setOpenSnackBar(true);
         setBlockGenerate(true);
       }
     }
@@ -505,6 +543,12 @@ function App() {
           <div> No labels generated</div>
         )}
       </div>
+      <Snackbar
+        open={openSnackbar}
+        onClose={handleClose}
+        message={snackBarMsg}
+        action={action}
+      />
       <br />
       <br />
       <br />
