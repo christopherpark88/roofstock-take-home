@@ -10,6 +10,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
 const defaultAddressValues = {
+  verify: ["delivery"],
   street1: "",
   street2: "",
   city: "",
@@ -121,7 +122,6 @@ function App() {
     if (reason === "clickaway") {
       return;
     }
-
     setOpenSnackBar(false);
   };
 
@@ -196,9 +196,9 @@ function App() {
       parcel: parcelDetails,
     }); */
 
-    let fromAddress = await easyPostAPI("Create Address", testSender);
+    let fromAddress = await easyPostAPI("Create Address", senderAddress);
     setSenderAddress(fromAddress);
-    let toAddress = await easyPostAPI("Create Address", testReceiver);
+    let toAddress = await easyPostAPI("Create Address", receiverAddress);
     setReceiverAddress(toAddress);
 
     let senderVerify = fromAddress.verifications.delivery;
@@ -321,7 +321,7 @@ function App() {
     let shipmentObj = await easyPostAPI("Create Shipment", {
       from_address: senderAddress,
       to_address: receiverAddress,
-      parcel: testParcel,
+      parcel: parcelDetails,
     });
 
     // Label is found here
