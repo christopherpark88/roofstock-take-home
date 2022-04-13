@@ -18,6 +18,7 @@ const defaultAddressValues = {
   zip: "",
   country: "",
   company: "",
+  name: "",
   phone: "",
 };
 
@@ -90,6 +91,7 @@ function App() {
     zip: { sender: false, receiver: false },
     country: { sender: false, receiver: false },
     company: { sender: false, receiver: false },
+    name: { sender: false, receiver: false },
     phone: { sender: false, receiver: false },
     length: false,
     width: false,
@@ -104,6 +106,7 @@ function App() {
     zip: { sender: "", receiver: "" },
     country: { sender: "", receiver: "" },
     company: { sender: "", receiver: "" },
+    name: { sender: "", receiver: "" },
     phone: { sender: "", receiver: "" },
     length: "",
     width: "",
@@ -114,10 +117,6 @@ function App() {
   const [snackBarMsg, setSnackBarMsg] = useState("");
   const [openSnackbar, setOpenSnackBar] = useState(false);
 
-  const handleClick = () => {
-    setOpenSnackBar(true);
-  };
-
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -125,6 +124,7 @@ function App() {
     setOpenSnackBar(false);
   };
 
+  // Snackbar Component
   const action = (
     <React.Fragment>
       <IconButton
@@ -329,6 +329,8 @@ function App() {
       id: shipmentObj.id,
     });
     setPostageLabel(shipmentPurchase.postage_label.label_url);
+    setSnackBarMsg("Successfully generated label!");
+    setOpenSnackBar(true);
   };
 
   useEffect(() => {}, []);
@@ -336,180 +338,304 @@ function App() {
   return (
     <div className="App">
       <header>
-        <h1>EasyPost Label Maker</h1>
+        <h1>EasyPost USPS Label Maker</h1>
       </header>
 
       <Grid container spacing={2}>
         <Grid item xs={4}>
           <div>
             <strong>From Address</strong>
-            <InputField
-              error={errorFields.street1.sender}
-              helperText={helperTexts.street1.sender}
-              fullWidth
-              variant="outlined"
-              label="Address Line 1"
-              onChange={handleAddressChange("street1", true)}
-            />
-            <InputField
-              error={errorFields.street2.sender}
-              helperText={helperTexts.street2.sender}
-              fullWidth
-              variant="outlined"
-              label="Address Line 2"
-              onChange={handleAddressChange("street2", true)}
-            />
-            <InputField
-              error={errorFields.city.sender}
-              helperText={helperTexts.city.sender}
-              fullWidth
-              variant="outlined"
-              label="City"
-              onChange={handleAddressChange("city", true)}
-            />
-            <InputField
-              error={errorFields.state.sender}
-              helperText={helperTexts.state.sender}
-              fullWidth
-              variant="outlined"
-              label="State"
-              onChange={handleAddressChange("state", true)}
-            />
-            <InputField
-              error={errorFields.zip.sender}
-              helperText={helperTexts.zip.sender}
-              fullWidth
-              variant="outlined"
-              label="Zip"
-              onChange={handleAddressChange("zip", true)}
-            />
-            <InputField
-              error={errorFields.country.sender}
-              helperText={helperTexts.country.sender}
-              fullWidth
-              variant="outlined"
-              label="Country"
-              onChange={handleAddressChange("country", true)}
-            />
-            <InputField
-              error={errorFields.company.sender}
-              helperText={helperTexts.company.sender}
-              fullWidth
-              variant="outlined"
-              label="Company"
-              onChange={handleAddressChange("company", true)}
-            />
-            <InputField
-              error={errorFields.phone.sender}
-              helperText={helperTexts.phone.sender}
-              fullWidth
-              variant="outlined"
-              label="Phone"
-              onChange={handleAddressChange("phone", true)}
-            />
+            <form autoComplete="on" id="easypost-info">
+              <InputField
+                error={errorFields.street1.sender}
+                helperText={helperTexts.street1.sender}
+                fullWidth
+                inputProps={{
+                  id: "street1-sender-input",
+                  autoComplete: "on",
+                }}
+                variant="outlined"
+                label="*Address Line 1"
+                onChange={handleAddressChange("street1", true)}
+              />
+              <InputField
+                error={errorFields.street2.sender}
+                helperText={helperTexts.street2.sender}
+                fullWidth
+                inputProps={{
+                  id: "street2-sender-input",
+                  autoComplete: "on",
+                }}
+                variant="outlined"
+                label="Address Line 2"
+                onChange={handleAddressChange("street2", true)}
+              />
+              <InputField
+                error={errorFields.city.sender}
+                helperText={helperTexts.city.sender}
+                fullWidth
+                inputProps={{
+                  id: "city-sender-input",
+                  autoComplete: "on",
+                }}
+                variant="outlined"
+                label="*City"
+                onChange={handleAddressChange("city", true)}
+              />
+              <InputField
+                error={errorFields.state.sender}
+                helperText={helperTexts.state.sender}
+                fullWidth
+                inputProps={{
+                  id: "state-sender-input",
+                  autoComplete: "on",
+                }}
+                variant="outlined"
+                label="*State"
+                onChange={handleAddressChange("state", true)}
+              />
+              <InputField
+                error={errorFields.zip.sender}
+                helperText={helperTexts.zip.sender}
+                fullWidth
+                inputProps={{
+                  id: "zip-sender-input",
+                  autoComplete: "on",
+                }}
+                variant="outlined"
+                label="*Zip"
+                onChange={handleAddressChange("zip", true)}
+              />
+              <InputField
+                error={errorFields.country.sender}
+                helperText={helperTexts.country.sender}
+                fullWidth
+                inputProps={{
+                  id: "country-sender-input",
+                  autoComplete: "on",
+                }}
+                variant="outlined"
+                label="*Country"
+                onChange={handleAddressChange("country", true)}
+              />
+              <div>
+                <span style={{ display: "inline-flex" }}>
+                  <InputField
+                    error={errorFields.name.sender}
+                    helperText={helperTexts.name.sender}
+                    fullWidth
+                    inputProps={{
+                      id: "name-sender-input",
+                      autoComplete: "on",
+                    }}
+                    variant="outlined"
+                    label="*Name"
+                    onChange={handleAddressChange("name", true)}
+                  />
+                </span>
+                <span style={{ display: "inline-flex" }}>
+                  <InputField
+                    error={errorFields.company.sender}
+                    helperText={helperTexts.company.sender}
+                    fullWidth
+                    inputProps={{
+                      id: "company-sender-input",
+                      autoComplete: "on",
+                    }}
+                    variant="outlined"
+                    label="Company"
+                    onChange={handleAddressChange("company", true)}
+                  />
+                </span>
+              </div>
+
+              <InputField
+                error={errorFields.phone.sender}
+                helperText={helperTexts.phone.sender}
+                fullWidth
+                inputProps={{
+                  id: "phone-sender-input",
+                  autoComplete: "on",
+                }}
+                variant="outlined"
+                label="*Phone"
+                onChange={handleAddressChange("phone", true)}
+              />
+            </form>
           </div>
         </Grid>
         <Grid item xs={4}>
           <strong>Destination Address</strong>
-          <InputField
-            error={errorFields.street1.receiver}
-            helperText={helperTexts.street1.receiver}
-            fullWidth
-            variant="outlined"
-            label="Address Line 1"
-            onChange={handleAddressChange("street1", false)}
-          />
-          <InputField
-            error={errorFields.street2.receiver}
-            helperText={helperTexts.street2.receiver}
-            fullWidth
-            variant="outlined"
-            label="Address Line 2"
-            onChange={handleAddressChange("street2", false)}
-          />
-          <InputField
-            error={errorFields.city.receiver}
-            helperText={helperTexts.city.receiver}
-            fullWidth
-            variant="outlined"
-            label="City"
-            onChange={handleAddressChange("city", false)}
-          />
-          <InputField
-            error={errorFields.state.receiver}
-            helperText={helperTexts.state.receiver}
-            fullWidth
-            variant="outlined"
-            label="State"
-            onChange={handleAddressChange("state", false)}
-          />
-          <InputField
-            error={errorFields.zip.receiver}
-            helperText={helperTexts.zip.receiver}
-            fullWidth
-            variant="outlined"
-            label="Zip"
-            onChange={handleAddressChange("zip", false)}
-          />
-          <InputField
-            error={errorFields.country.receiver}
-            helperText={helperTexts.country.receiver}
-            fullWidth
-            variant="outlined"
-            label="Country"
-            onChange={handleAddressChange("country", false)}
-          />
-          <InputField
-            error={errorFields.company.receiver}
-            helperText={helperTexts.company.receiver}
-            fullWidth
-            variant="outlined"
-            label="Company"
-            onChange={handleAddressChange("company", false)}
-          />
-          <InputField
-            error={errorFields.phone.receiver}
-            helperText={helperTexts.phone.receiver}
-            fullWidth
-            variant="outlined"
-            label="Phone"
-            onChange={handleAddressChange("phone", false)}
-          />
+          <form autoComplete="on" id="easypost-info">
+            <InputField
+              error={errorFields.street1.receiver}
+              helperText={helperTexts.street1.receiver}
+              fullWidth
+              inputProps={{
+                id: "street1-receiver-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*Address Line 1"
+              onChange={handleAddressChange("street1", false)}
+            />
+            <InputField
+              error={errorFields.street2.receiver}
+              helperText={helperTexts.street2.receiver}
+              fullWidth
+              inputProps={{
+                id: "street2-receiver-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="Address Line 2"
+              onChange={handleAddressChange("street2", false)}
+            />
+            <InputField
+              error={errorFields.city.receiver}
+              helperText={helperTexts.city.receiver}
+              fullWidth
+              inputProps={{
+                id: "city-receiver-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*City"
+              onChange={handleAddressChange("city", false)}
+            />
+            <InputField
+              error={errorFields.state.receiver}
+              helperText={helperTexts.state.receiver}
+              fullWidth
+              inputProps={{
+                id: "state-receiver-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*State"
+              onChange={handleAddressChange("state", false)}
+            />
+            <InputField
+              error={errorFields.zip.receiver}
+              helperText={helperTexts.zip.receiver}
+              fullWidth
+              inputProps={{
+                id: "zip-receiver-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*Zip"
+              onChange={handleAddressChange("zip", false)}
+            />
+            <InputField
+              error={errorFields.country.receiver}
+              helperText={helperTexts.country.receiver}
+              fullWidth
+              inputProps={{
+                id: "country-receiver-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*Country"
+              onChange={handleAddressChange("country", false)}
+            />
+            <div>
+              <span style={{ display: "inline-flex" }}>
+                <InputField
+                  error={errorFields.name.sender}
+                  helperText={helperTexts.name.sender}
+                  fullWidth
+                  inputProps={{
+                    id: "name-receiver-input",
+                    autoComplete: "on",
+                  }}
+                  variant="outlined"
+                  label="*Name"
+                  onChange={handleAddressChange("name", false)}
+                />
+              </span>
+              <span style={{ display: "inline-flex" }}>
+                <InputField
+                  error={errorFields.company.receiver}
+                  helperText={helperTexts.company.receiver}
+                  fullWidth
+                  inputProps={{
+                    id: "company-receiver-input",
+                    autoComplete: "on",
+                  }}
+                  variant="outlined"
+                  label="Company"
+                  onChange={handleAddressChange("company", false)}
+                />
+              </span>
+            </div>
+
+            <InputField
+              error={errorFields.phone.receiver}
+              helperText={helperTexts.phone.receiver}
+              fullWidth
+              inputProps={{
+                id: "phone-receiver-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*Phone"
+              onChange={handleAddressChange("phone", false)}
+            />
+          </form>
         </Grid>
         <Grid item xs={4}>
           <strong>Package Attributes</strong>
-          <InputField
-            error={errorFields.length}
-            helperText={helperTexts.length}
-            fullWidth
-            variant="outlined"
-            label="Length (inches)"
-            onChange={handleParcelDetailChange("length")}
-          />
-          <InputField
-            error={errorFields.width}
-            helperText={helperTexts.width}
-            fullWidth
-            variant="outlined"
-            label="Width (inches)"
-            onChange={handleParcelDetailChange("width")}
-          />
-          <InputField
-            error={errorFields.height}
-            helperText={helperTexts.height}
-            fullWidth
-            variant="outlined"
-            label="Height (inches)"
-            onChange={handleParcelDetailChange("height")}
-          />
-          <InputField
-            error={errorFields.weight}
-            helperText={helperTexts.weight}
-            fullWidth
-            variant="outlined"
-            label="Weight (oz)"
-            onChange={handleParcelDetailChange("weight")}
-          />
+          <form autoComplete="on" id="easypost-info">
+            <InputField
+              error={errorFields.length}
+              helperText={helperTexts.length}
+              fullWidth
+              inputProps={{
+                id: "length-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*Length (inches)"
+              onChange={handleParcelDetailChange("length")}
+            />
+            <InputField
+              error={errorFields.width}
+              helperText={helperTexts.width}
+              fullWidth
+              inputProps={{
+                id: "width-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*Width (inches)"
+              onChange={handleParcelDetailChange("width")}
+            />
+            <InputField
+              error={errorFields.height}
+              helperText={helperTexts.height}
+              fullWidth
+              inputProps={{
+                id: "height-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*Height (inches)"
+              onChange={handleParcelDetailChange("height")}
+            />
+            <InputField
+              error={errorFields.weight}
+              helperText={helperTexts.weight}
+              fullWidth
+              inputProps={{
+                id: "weight-input",
+                autoComplete: "on",
+              }}
+              variant="outlined"
+              label="*Weight (oz)"
+              onChange={handleParcelDetailChange("weight")}
+            />
+          </form>
         </Grid>
       </Grid>
       <div>
@@ -518,6 +644,7 @@ function App() {
           variant="contained"
           color="secondary"
           onClick={verifyAddress}
+          form="easypost-info"
         >
           Verify Address
         </Button>
