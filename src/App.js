@@ -22,7 +22,7 @@ const defaultAddressValues = {
   phone: "",
 };
 
-let testSender = {
+/* let testSender = {
   verify: ["delivery"],
   street1: "417 MONTGOMERY ST",
   street2: "FLOOR 5",
@@ -48,6 +48,36 @@ let testReceiver = {
 let testParcel = {
   length: 20.2,
   width: 10.9,
+  height: 5,
+  weight: 65.9,
+}; */
+
+let testSender = {
+  verify: ["delivery"],
+  street1: "",
+  street2: "",
+  city: "",
+  state: "CA",
+  zip: "94104",
+  country: "US",
+  company: "",
+  phone: "415-123-4567",
+};
+
+let testReceiver = {
+  verify: ["delivery"],
+  name: "",
+  street1: "179 N Harbor Dr",
+  city: "Redondo Beach",
+  state: "CA",
+  zip: "90277",
+  country: "US",
+  phone: "4155559999",
+};
+
+let testParcel = {
+  length: 0,
+  width: 0,
   height: 5,
   weight: 65.9,
 };
@@ -81,7 +111,12 @@ const InputField = styled(TextField)`
 function App() {
   const [senderAddress, setSenderAddress] = useState(defaultAddressValues);
   const [receiverAddress, setReceiverAddress] = useState(defaultAddressValues);
-  const [parcelDetails, setParcelDetails] = useState("");
+  const [parcelDetails, setParcelDetails] = useState({
+    length: 0,
+    width: 0,
+    height: 0,
+    weight: 0,
+  });
   const [postageLabel, setPostageLabel] = useState("");
   const [errorFields, setErrorFields] = useState({
     street1: { sender: false, receiver: false },
@@ -185,16 +220,112 @@ function App() {
       ...parcelDetails,
       [key]: parseFloat(e.target.value),
     });
+    setErrorFields({
+      ...errorFields,
+      [key]: false,
+    });
+    setHelperTexts({
+      ...helperTexts,
+      [key]: "",
+    });
   };
 
   // Start process to create label upon button click
-  const verifyAddress = async () => {
-    // Create shipment
-    /*     let shipmentObj = await easyPostAPI("Create Shipment", {
-      from_address: senderAddress,
-      to_address: receiverAddress,
-      parcel: parcelDetails,
-    }); */
+  const verifyInfo = async () => {
+    //Verify no fields are empty
+    // Test if any address properties empty
+
+    //Test if parcel props empty
+    let emptyFieldFound = false;
+    let parcelErrorFields = {};
+    let parcelHelperTexts = {};
+    let addressErrorFields = {
+      street1: { sender: false, receiver: false },
+      street2: { sender: false, receiver: false },
+      city: { sender: false, receiver: false },
+      state: { sender: false, receiver: false },
+      zip: { sender: false, receiver: false },
+      country: { sender: false, receiver: false },
+      company: { sender: false, receiver: false },
+      name: { sender: false, receiver: false },
+      phone: { sender: false, receiver: false },
+    };
+    let addressHelperTexts = {
+      street1: { sender: "", receiver: "" },
+      street2: { sender: "", receiver: "" },
+      city: { sender: "", receiver: "" },
+      state: { sender: "", receiver: "" },
+      zip: { sender: "", receiver: "" },
+      country: { sender: "", receiver: "" },
+      company: { sender: "", receiver: "" },
+      name: { sender: "", receiver: "" },
+      phone: { sender: "", receiver: "" },
+    };
+    let exclude = ["street2", "name", "company"];
+
+    for (const [key, value] of Object.entries(parcelDetails)) {
+      if (!value) {
+        emptyFieldFound = true;
+        parcelErrorFields = {
+          ...parcelErrorFields,
+          [key]: true,
+        };
+        parcelHelperTexts = {
+          ...parcelHelperTexts,
+          [key]: `${key} cannot be empty or 0`,
+        };
+      }
+    }
+
+    for (const [key, value] of Object.entries(senderAddress)) {
+      if (!value && !exclude.includes(key)) {
+        emptyFieldFound = true;
+        addressErrorFields = {
+          ...addressErrorFields,
+          [key]: { sender: true, receiver: addressErrorFields[key].receiver },
+        };
+        addressHelperTexts = {
+          ...addressHelperTexts,
+          [key]: {
+            sender: `${key} is required`,
+            receiver: addressHelperTexts[key].receiver,
+          },
+        };
+      }
+    }
+
+    for (const [key, value] of Object.entries(receiverAddress)) {
+      if (!value && !exclude.includes(key)) {
+        emptyFieldFound = true;
+        addressErrorFields = {
+          ...addressErrorFields,
+          [key]: { sender: addressErrorFields[key].sender, receiver: true },
+        };
+        addressHelperTexts = {
+          ...addressHelperTexts,
+          [key]: {
+            sender: addressHelperTexts[key].sender,
+            receiver: `${key} is required`,
+          },
+        };
+      }
+    }
+
+    setErrorFields({
+      ...errorFields,
+      ...parcelErrorFields,
+      ...addressErrorFields,
+    });
+
+    setHelperTexts({
+      ...helperTexts,
+      ...parcelHelperTexts,
+      ...addressHelperTexts,
+    });
+
+    if (emptyFieldFound) {
+      return;
+    }
 
     let fromAddress = await easyPostAPI("Create Address", senderAddress);
     setSenderAddress(fromAddress);
@@ -207,6 +338,7 @@ function App() {
     console.log("sender verif", senderVerify);
     console.log("receiver verif", receiverVerify);
 
+    // Verify any errors given by EasyPost
     if (senderVerify.success && receiverVerify.success) {
       if (senderVerify.errors.length > 0) {
         senderVerify.errors.map((error) => {
@@ -333,7 +465,9 @@ function App() {
     setOpenSnackBar(true);
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    //Testing verification
+  }, []);
 
   return (
     <div className="App">
@@ -542,8 +676,8 @@ function App() {
             <div>
               <span style={{ display: "inline-flex" }}>
                 <InputField
-                  error={errorFields.name.sender}
-                  helperText={helperTexts.name.sender}
+                  error={errorFields.name.receiver}
+                  helperText={helperTexts.name.receiver}
                   fullWidth
                   inputProps={{
                     id: "name-receiver-input",
@@ -643,7 +777,7 @@ function App() {
           style={{ margin: "1rem" }}
           variant="contained"
           color="secondary"
-          onClick={verifyAddress}
+          onClick={verifyInfo}
           form="easypost-info"
         >
           Verify Address
@@ -657,7 +791,6 @@ function App() {
           Generate Label
         </Button>
       </div>
-
       <div>
         <h2 style={{ textDecoration: "underline", margin: "3rem" }}>
           Generated Label
